@@ -2062,7 +2062,9 @@ func (woc *wfOperationCtx) executeTemplate(ctx context.Context, nodeName string,
 		fulfilledNode := woc.handleNodeFulfilled(ctx, nodeName, node, processedTmpl)
 		if fulfilledNode != nil {
 			woc.controller.syncManager.Release(ctx, woc.wf, node.ID, processedTmpl.Synchronization)
-			return fulfilledNode, nil
+			if !node.IsDaemoned() { // daemoned nodes should continue execution
+				return fulfilledNode, nil
+			}
 		}
 		// Memoized nodes don't have StartedAt.
 		if node.StartedAt.IsZero() {
